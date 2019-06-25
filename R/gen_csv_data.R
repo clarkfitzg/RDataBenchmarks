@@ -10,7 +10,7 @@
 #' @param ... arguments to \code{data.table:::fwrite}
 #' @return d generated data that was written to fname
 gen_csv_data = function(p, n
-                        , fname = "~/data/RDataBenchmarks/data.csv"
+                        , fname = default_csv_file()
                         , MB = 100
                         , sampler = function(n) signif(runif(n))
                         , group_probs = rep(0.1, 10)
