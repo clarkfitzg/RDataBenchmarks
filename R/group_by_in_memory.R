@@ -24,3 +24,21 @@ group_by_tapply = function(fname = default_csv_file(), by_col = "g", data_col = 
     })
     list(split_and_compute_time = split_and_compute_time)
 }
+
+
+#' Time GROUP BY operation
+#'
+#' @param fname name of the file to read
+group_by_split_lapply = function(fname = default_csv_file(), by_col = "g", data_col = "col1", group_fun = median)
+{
+    DT = data.table::fread(fname)
+    df = as.data.frame(DT)
+    split_time = system.time({
+        s = split(df[, data_col], df[, by_col])
+    })
+    lapply_time = system.time({
+        out = lapply(s, group_fun)
+    })
+
+    list(split_time = split_time, lapply_time = lapply_time)
+}
