@@ -1,4 +1,4 @@
-Package: r_data_benchmarks
+Package: RDataBenchmarks
 Type: Package
 Title: Experiments evaluating the performance of different data processing techniques in R
 Version: 0.1
@@ -12,12 +12,13 @@ Depends:
 Imports:
     utils
 Suggests: 
-    data.table
+    data.table,
     roxygen2,
     knitr,
-    rmarkdown,
-Description: More about what it does (maybe more than one line)
+    rmarkdown
+Description: Reproducible experiments to run on several systems
 License: MIT + file LICENSE
-URL: https://github.com/clarkfitzg/r_data_benchmarks
-BugReports: https://github.com/clarkfitzg/r_data_benchmarks
+URL: https://github.com/clarkfitzg/RDataBenchmarks
+BugReports: https://github.com/clarkfitzg/RDataBenchmarks
 VignetteBuilder: knitr
+RoxygenNote: 6.1.1
