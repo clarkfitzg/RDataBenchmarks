@@ -4,7 +4,7 @@
 \alias{gen_csv_data}
 \title{Generate synthetic CSV data}
 \usage{
-gen_csv_data(p, n, fname = "~/data/RDataBenchmarks/data.csv", MB = 100,
+gen_csv_data(p, n, fname = default_csv_file(), MB = 100,
   sampler = function(n) signif(runif(n)), group_probs = rep(0.1, 10),
   prepend_group_column = TRUE, column_names = paste0("col", seq(p)),
   group_column_name = "g", ...)
