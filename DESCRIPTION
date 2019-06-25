@@ -1,0 +1,23 @@
+Package: r_data_benchmarks
+Type: Package
+Title: Experiments evaluating the performance of different data processing techniques in R
+Version: 0.1
+Date: 2019-06-25
+Authors@R: person("Clark", "Fitzgerald", role = c("aut", "cre"),
+                     email = "clarkfitzg@gmail.com",
+                     comment = c(ORCID = "0000-0003-3446-6389"))
+Maintainer: Clark Fitzgerald <clarkfitzg@gmail.com>
+Depends:
+    R (>= 3.1.0)
+Imports:
+    utils
+Suggests: 
+    data.table
+    roxygen2,
+    knitr,
+    rmarkdown,
+Description: More about what it does (maybe more than one line)
+License: MIT + file LICENSE
+URL: https://github.com/clarkfitzg/r_data_benchmarks
+BugReports: https://github.com/clarkfitzg/r_data_benchmarks
+VignetteBuilder: knitr
