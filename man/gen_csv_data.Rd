@@ -16,7 +16,7 @@ gen_csv_data(p, n, fname = "~/data/RDataBenchmarks/data.csv", MB = 100,
 
 \item{fname}{name of the file to save}
 
-\item{MB}{size of the data in MB, excluding the group column}
+\item{MB}{size of the data in MB. An integer group column will make this a little smaller.}
 
 \item{sampler}{function that creates random observations}
 
