@@ -1,7 +1,7 @@
 #' Generate synthetic tabular data
 #'
-#' @param p number of columns
 #' @param n number of rows. Specify only one of n or MB.
+#' @param p number of columns
 #' @param fname name of the file to save
 #' @param MB size of the data in MB. An integer group column will make this a little smaller.
 #' @param sampler function that creates random observations
@@ -10,7 +10,7 @@
 #' @param writer function to save generated data. Must have signature (data, fname, ...)
 #' @param ... arguments to writer
 #' @return d generated data that was written to fname
-gen_table = function(p, n
+gen_table = function(n, p = 10
                         , fname = default_csv_file()
                         , MB = 100
                         , sampler = function(n) signif(runif(n))

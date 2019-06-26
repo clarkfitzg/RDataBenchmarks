@@ -143,7 +143,7 @@ second_group = function(g1_assign, P, w)
 }
 
 
-#' Generate and save data for two group by
+#' Generate and save data for shuffled data group by experiment
 #'
 #' @param nfiles number of files
 #' @param ngroups number of distinct groups in the grouping column
@@ -152,10 +152,13 @@ second_group = function(g1_assign, P, w)
 #' @param rand_gen random number generating function
 #' @param dir directory to save files
 #' @param ... further arguments to gen_table
-gen_data_groupby = function(nfiles = 10L, ngroups = 8L, block_two = FALSE, block_magnitude = 1
+gen_data_groupby = function(nfiles = 10L, ngroups = 8L
+    , block_two = TRUE, block_magnitude = 1
     , rand_gen = runif
     , dir = file.path(default_data_dir(), sprintf("group_%ifiles_%igroups", nfiles, ngroups))
-{
+    , ...
+){
+    # Each row of P is a different file
     P = matrix(rand_gen(nfiles * ngroups), nrow = nfiles)
 
     if(block_two){
@@ -168,4 +171,12 @@ gen_data_groupby = function(nfiles = 10L, ngroups = 8L, block_two = FALSE, block
 
         P = P + block
     }
+
+    for(i in seq(nfiles)){
+        fname = file.path(dir, i)
+        gen_table(fname = fname, group_probs = P[i ,], ...)
+    }
+    saveRDS(P, file.path(dir, "P.rds"))
+
+    P
 }

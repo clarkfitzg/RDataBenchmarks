@@ -11,7 +11,7 @@ This is how we would process the data in an ideal case, when the data is on the 
 library(RDataBenchmarks)
 
 # Only need to run this once
-gen_csv_data(p = 10)
+gen_table(p = 10)
 
 time_dt = group_by_data.table()
 
@@ -70,8 +70,11 @@ So we do need to measure every step for each case.
 It's not a bad thing that the steps all depend on each other.
 Indeed, it shows that for this particular code pattern we might take a completely different choice in how to compute a result depending on the characteristics of the data and the platform.
 
+Generate some data:
+
 ```{r}
 
+gen_data_groupby(p = 1, MB = 50, writer = saveRDS)
 
 
 ```
