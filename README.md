@@ -74,7 +74,13 @@ Generate some data:
 
 ```{r}
 
-gen_data_groupby(p = 1, MB = 50, writer = saveRDS)
+gen_data_groupby(p = 1
+    , MB = 50
+    , writer = saveRDS
+    , nfiles = 10L
+    , ngroups = 8L
+    , block_two = TRUE
+)
 
 
 ```

@@ -155,9 +155,14 @@ second_group = function(g1_assign, P, w)
 gen_data_groupby = function(nfiles = 10L, ngroups = 8L
     , block_two = TRUE, block_magnitude = 1
     , rand_gen = runif
-    , dir = file.path(default_data_dir(), sprintf("group_%ifiles_%igroups", nfiles, ngroups))
+    , dir = file.path(default_data_dir(), sprintf("groupby_%ifiles_%igroups", nfiles, ngroups))
     , ...
 ){
+    if(dir.exists(dir)){
+        stop("There's already data in this directory.")
+    }
+    dir.create(dir)
+
     # Each row of P is a different file
     P = matrix(rand_gen(nfiles * ngroups), nrow = nfiles)
 
@@ -166,8 +171,8 @@ gen_data_groupby = function(nfiles = 10L, ngroups = 8L
         nfiles_b = seq(as.integer(nfiles / 2))
         ngroups_b = seq(as.integer(ngroups / 2))
         block = matrix(0, nrow = nfiles, ncol = ngroups)
-        block[nfiles_b, ngroups_b] = block_multiplier
-        block[-nfiles_b, -ngroups_b] = block_multiplier
+        block[nfiles_b, ngroups_b] = block_magnitude
+        block[-nfiles_b, -ngroups_b] = block_magnitude
 
         P = P + block
     }
