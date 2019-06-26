@@ -1,4 +1,4 @@
-#' Generate synthetic CSV data
+#' Generate synthetic tabular data
 #'
 #' @param p number of columns
 #' @param n number of rows. Specify only one of n or MB.
@@ -7,9 +7,10 @@
 #' @param sampler function that creates random observations
 #' @param prepend_group_column whether to include a 
 #' @param group_probs
-#' @param ... arguments to \code{data.table:::fwrite}
+#' @param writer function to save generated data. Must have signature (data, fname, ...)
+#' @param ... arguments to writer
 #' @return d generated data that was written to fname
-gen_csv_data = function(p, n
+gen_table = function(p, n
                         , fname = default_csv_file()
                         , MB = 100
                         , sampler = function(n) signif(runif(n))
@@ -17,6 +18,7 @@ gen_csv_data = function(p, n
                         , prepend_group_column = TRUE
                         , column_names = paste0("col", seq(p))
                         , group_column_name = "g"
+                        , writer = data.table::fwrite
                         , ...)
 {
     if(missing(n)){
@@ -38,6 +40,6 @@ gen_csv_data = function(p, n
 
     d = do.call(data.frame, d)
 
-    data.table:::fwrite(d, fname, ...)
+    writer(d, fname, ...)
     d
 }
