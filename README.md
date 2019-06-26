@@ -63,10 +63,12 @@ Let's see if this also translates to a real speedup.
 The actual speedup depends on relatively how expensive each step is- data loading, transfer, and computation.
 The ideal case is when the data transfer is the bottleneck, which may be realistic on a distributed platform where workers must communicate over a slow network.
 
-A problem is that these three steps are not independent.
+These three steps are not independent.
 The heuristic I wrote is designed purely to decrease data transfer time, without affecting data loading and computation time too much.
 We may reduce data transfer time at the expense of increasing the data loading and computation time because of worse load balancing.
 So we do need to measure every step for each case.
+It's not a bad thing that the steps all depend on each other.
+Indeed, it shows that for this particular code pattern we might take a completely different choice in how to compute a result depending on the characteristics of the data and the platform.
 
 ```{r}
 
