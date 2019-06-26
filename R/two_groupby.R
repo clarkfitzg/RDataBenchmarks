@@ -143,19 +143,28 @@ second_group = function(g1_assign, P, w)
 }
 
 
-# Generate and save data for two group by
-gen_data_groupby = function(nfiles = 10L, ngroups = 8L, block_two = FALSE
+#' Generate and save data for two group by
+#'
+#' @param nfiles number of files
+#' @param ngroups number of distinct groups in the grouping column
+#' @param block_two logical, whether to add two diagonal blocks to the distributions of the files and groups, which means that some groups are more likely to be located in particular files.
+#' @param block_multiplier magnitude of block structure
+#' @param rand_gen random number generating function
+#' @param dir directory to save files
+#' @param ... further arguments to gen_table
+gen_data_groupby = function(nfiles = 10L, ngroups = 8L, block_two = FALSE, block_magnitude = 1
+    , rand_gen = runif
     , dir = file.path(default_data_dir(), sprintf("group_%ifiles_%igroups", nfiles, ngroups))
 {
-    P = matrix(runif(nfiles * ngroups), nrow = nfiles)
+    P = matrix(rand_gen(nfiles * ngroups), nrow = nfiles)
 
     if(block_two){
         # Add two diagonal blocks to it
         nfiles_b = seq(as.integer(nfiles / 2))
         ngroups_b = seq(as.integer(ngroups / 2))
         block = matrix(0, nrow = nfiles, ncol = ngroups)
-        block[nfiles_b, ngroups_b] = 1
-        block[-nfiles_b, -ngroups_b] = 1
+        block[nfiles_b, ngroups_b] = block_multiplier
+        block[-nfiles_b, -ngroups_b] = block_multiplier
 
         P = P + block
     }

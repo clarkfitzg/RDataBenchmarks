@@ -38,6 +38,6 @@ gen_csv_data = function(p, n
 
     d = do.call(data.frame, d)
 
-    data.table:::fwrite(d, fname)
+    data.table:::fwrite(d, fname, ...)
     d
 }
