@@ -60,6 +60,14 @@ I'll start with a case where it theoretically will matter more- when there is so
 For three workers, 10 initial chunks of data, and 10 groups, the improved data local algorithm moved about 16% less of the total data.
 Let's see if this also translates to a real speedup.
 
+The actual speedup depends on relatively how expensive each step is- data loading, transfer, and computation.
+The ideal case is when the data transfer is the bottleneck, which may be realistic on a distributed platform where workers must communicate over a slow network.
+
+A problem is that these three steps are not independent.
+The heuristic I wrote is designed purely to decrease data transfer time, without affecting data loading and computation time too much.
+We may reduce data transfer time at the expense of increasing the data loading and computation time because of worse load balancing.
+So we do need to measure every step for each case.
+
 ```{r}
 
 
