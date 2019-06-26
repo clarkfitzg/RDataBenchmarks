@@ -189,4 +189,6 @@ gen_data_groupby = function(nfiles = 10L, ngroups = 8L
 
 data_local_group_assign = function(P)
 {
+
+    list(file = , group = )
 }

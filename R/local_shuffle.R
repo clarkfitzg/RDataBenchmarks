@@ -1,8 +1,11 @@
 #' Time GROUP BY operation
 #'
+#' Internally this uses data.table, because it's fast and we want the speed.
+#'
 #' @param dir directory where data can be found
-group_by_local_shuffle = function(dir, nworkers = 3L, assign_groups = data_local_group_assign, by_col = "g", data_col = "col1", group_fun = median)
-{
+group_by_local_shuffle = function(dir, nworkers = 3L
+    , assign_groups = data_local_group_assign, group_fun = median
+){
 
 ############################################################
     scheduling_time = system.time({
@@ -13,26 +16,29 @@ group_by_local_shuffle = function(dir, nworkers = 3L, assign_groups = data_local
 
         s = assign_groups(P)
 
+        datafiles = list.files(dir, pattern = "^[0-9]{1,}$", full.names = TRUE)
+
         # list of length nworkers, where the ith element contains the file names for worker i to read
-        files_to_read = 
+        files_to_read = lapply(seq(nworkers), function(i) datafiles[s[["file"]] == i])
 
         # The groups for the GROUP BY computation
         group_by_levels = seq(ncol(P))
 
         # Assigns the groups to workers
-        group_worker_assignment = 
+        group_worker_assignment = s[["group"]]
     })
 
 ############################################################
     setup_cluster_time = system.time({
         cls = makeCluster(nworkers)
 
-        clusterExport(cls, c("files_to_read", "group_by_levels", "compute_assignments", "group_fun"))
+        clusterExport(cls, c("files_to_read", "group_by_levels", "group_worker_assignment", "group_fun"))
         parLapply(cls, seq(nworkers), function(i) assign("workerID", i, globalenv()))
 
         clusterEvalQ(cls, {
             library(data.table)
             files_to_read = files_to_read[[workerID]]
+            groups_to_compute = group_by_levels[group_worker_assignment == workerID]
         })
     })
 
@@ -47,8 +53,19 @@ group_by_local_shuffle = function(dir, nworkers = 3L, assign_groups = data_local
 
 ############################################################
     intermediate_save_time = system.time({
+
+        dir_intermediate = file.path(dir, "intermediate")
+        mkdir(dir_intermediate)
+        clusterExport(cls, "dir_intermediate")
+
         clusterEvalQ(cls, {
-            d[!(g %in% 
+            save_intermediate = function(grp){
+                fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
+                # TODO: experiment with high performance intermediate data format, for example fst
+                saveRDS(grp, fname)
+            }
+            # data.table syntax:
+            d[!(g %in% groups_to_compute), save_intermediate(.SD), by = g]
         })
 
     })
@@ -70,22 +87,3 @@ group_by_local_shuffle = function(dir, nworkers = 3L, assign_groups = data_local
          )
 }
 
-
-#' Spin up a local SNOW cluster and prepare the workers to do the computation.
-#'
-#' @param nworkers number of workers
-#' @return cls the prepared cluster
-setup_cluster = function(nworkers, files_to_read){
-
-    cls = makeCluster(nworkers)
-
-    clusterExport(cls, files_to_read)
-    parLapply(cls, seq(nworkers), function(i) assign("workerID", i, globalenv()))
-
-    clusterEvalQ(cls, {
-        library(data.table)
-        files_to_read = files_to_read[[workerID]]
-    })
-
-    cls
-}
