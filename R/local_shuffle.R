@@ -78,25 +78,31 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     dir.create(dir_intermediate)
 
     save_intermediate = function(grp){
-        if(0 < nrow(grp)){
-            fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
-            # TODO: experiment with high performance intermediate data format, for example fst
-            saveRDS(grp, fname)
-        }
+        fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
+        # TODO: experiment with high performance intermediate data format, for example fst
+        saveRDS(grp, fname)
     }
 
     clusterExport(cls, c("dir_intermediate", "save_intermediate")
                   , envir = environment())
 
+    if(FALSE){
+
+    # This is weird. I expected it to return all the groups
     clusterEvalQ(cls, {
-        #d[!(g %in% groups_to_compute), head(.SD, 3L), by = g]
-                     d$g[1]
+        d[, (.SD$g[1]), by = g, .SDcols = c("col1", "g")]
                   })
+
+    clusterEvalQ(cls, {
+        d[, (.SD$col1[1]), by = g]
+                  })
+
+    }
 
 
     clusterEvalStay(cls, {
         # data.table syntax:
-        d[!(g %in% groups_to_compute), save_intermediate(.SD), by = g]
+        d[!(g %in% groups_to_compute), save_intermediate(.SD), by = g, .SDcols = c("col1", "g")]
 
         # Drop everything that we no longer need.
         d = d[g %in% groups_to_compute, ]
