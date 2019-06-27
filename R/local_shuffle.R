@@ -45,7 +45,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     # Use workerID globally all over the place in the code that follows
     parLapply(cls, seq(nworkers), function(i) assign("workerID", i, globalenv()))
 
-    clusterEvalQ(cls, {
+    clusterEvalStay(cls, {
         library(data.table)
         files_to_read = files_to_read[[workerID]]
         groups_to_compute = group_by_levels[group_worker_assignment == workerID]
@@ -64,7 +64,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     clusterExport(cls, "load_and_combine"
                   , envir = environment())
 
-    clusterEvalQ(cls, {
+    clusterEvalStay(cls, {
         d = load_and_combine(files_to_read)
     })
 
@@ -85,7 +85,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     clusterExport(cls, c("dir_intermediate", "save_intermediate")
                   , envir = environment())
 
-    clusterEvalQ(cls, {
+    clusterEvalStay(cls, {
         # data.table syntax:
         d[!(g %in% groups_to_compute), save_intermediate(.SD), by = g]
 
@@ -106,7 +106,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     clusterExport(cls, c("intermediate_files", "intfile_groups")
                   , envir = environment())
 
-    clusterEvalQ(cls, {
+    clusterEvalStay(cls, {
         int_files_to_read = intermediate_files[intfile_groups %in% groups_to_compute]
 
         d_from_others = load_and_combine(int_files_to_read)
@@ -124,7 +124,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     clusterExport(cls, "dir_result"
                   , envir = environment())
 
-    clusterEvalQ(cls, {
+    clusterEvalStay(cls, {
         result = d[, group_fun(col1), by = g]
         saveRDS(result, file.path(dir_result, workerID))
     })
