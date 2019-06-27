@@ -1,3 +1,9 @@
+```{r}
+
+library(RDataBenchmarks)
+
+```
+
 # RDataBenchmarks
 
 Experiments evaluating the performance of different data processing techniques in R
@@ -8,7 +14,6 @@ This is how we would process the data in an ideal case, when the data is on the 
 
 ```{r}
 
-library(RDataBenchmarks)
 
 # Only need to run this once
 gen_table(p = 10)

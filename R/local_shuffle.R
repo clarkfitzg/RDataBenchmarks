@@ -39,7 +39,8 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 
     cls = makeCluster(nworkers)
 
-    clusterExport(cls, c("files_to_read", "group_by_levels", "group_worker_assignment", "group_fun"))
+    clusterExport(cls, c("files_to_read", "group_by_levels", "group_worker_assignment", "group_fun")
+                  , envir = environment())
 
     # Use workerID globally all over the place in the code that follows
     parLapply(cls, seq(nworkers), function(i) assign("workerID", i, globalenv()))
@@ -60,7 +61,8 @@ group_by_local_shuffle = function(dir, nworkers = 3L
         data.table::rbindlist(chunks)
     }
 
-    clusterExport(cls, "load_and_combine")
+    clusterExport(cls, "load_and_combine"
+                  , envir = environment())
 
     clusterEvalQ(cls, {
         d = load_and_combine(files_to_read)
@@ -72,7 +74,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 ############################################################
 
     dir_intermediate = file.path(dir, "intermediate")
-    mkdir(dir_intermediate)
+    dir.create(dir_intermediate)
 
     save_intermediate = function(grp){
         fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
@@ -80,7 +82,8 @@ group_by_local_shuffle = function(dir, nworkers = 3L
         saveRDS(grp, fname)
     }
 
-    clusterExport(cls, c("dir_intermediate", "save_intermediate"))
+    clusterExport(cls, c("dir_intermediate", "save_intermediate")
+                  , envir = environment())
 
     clusterEvalQ(cls, {
         # data.table syntax:
@@ -100,7 +103,8 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     intfile_groups = gsub("(group|_worker.*)", "", intermediate_files)
     #intfile_groups = as.integer(intfile_groups)
 
-    clusterExport(cls, c("intermediate_files", "intfile_groups"))
+    clusterExport(cls, c("intermediate_files", "intfile_groups")
+                  , envir = environment())
 
     clusterEvalQ(cls, {
         int_files_to_read = intermediate_files[intfile_groups %in% groups_to_compute]
@@ -115,9 +119,10 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 ############################################################
 
     dir_result = file.path(dir, "result")
-    mkdir(dir_result)
+    dir.create(dir_result)
 
-    clusterExport(cls, "dir_result")
+    clusterExport(cls, "dir_result"
+                  , envir = environment())
 
     clusterEvalQ(cls, {
         result = d[, group_fun(col1), by = g]
