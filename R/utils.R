@@ -13,6 +13,7 @@ start_time = function(event_name)
 record_time = function(event_name, times)
 {
     times = stop_time(times)
+    message(event_name)
     times[[event_name]] = Sys.time()
     times
 }

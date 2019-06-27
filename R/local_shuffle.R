@@ -86,22 +86,9 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     clusterExport(cls, c("dir_intermediate", "save_intermediate")
                   , envir = environment())
 
-    if(FALSE){
-
-    # This is weird. I expected it to return all the groups
-    clusterEvalQ(cls, {
-        d[, (.SD$g[1]), by = g, .SDcols = c("col1", "g")]
-                  })
-
-    clusterEvalQ(cls, {
-        d[, (.SD$col1[1]), by = g]
-                  })
-
-    }
-
-
     clusterEvalStay(cls, {
         # data.table syntax:
+        # Must have the "g" in the .SDcols or else it will be dropped because it is the grouping column
         d[!(g %in% groups_to_compute), save_intermediate(.SD), by = g, .SDcols = c("col1", "g")]
 
         # Drop everything that we no longer need.
@@ -113,7 +100,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     tm = record_time("intermediate_load_time", tm)
 ############################################################
 
-    intermediate_files = list.files(dir_intermediate)
+    intermediate_files = list.files(dir_intermediate, full.names = TRUE)
 
     intfile_groups = gsub("(group|_worker.*)", "", intermediate_files)
     #intfile_groups = as.integer(intfile_groups)
