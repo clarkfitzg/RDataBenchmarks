@@ -14,7 +14,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
         # Rows are the files, columns are the groups
         P = readRDS(file.path(dir, "P.rds"))
 
-        s = assign_groups(P)
+        s = assign_groups(P, nworkers)
 
         datafiles = list.files(dir, pattern = "^[0-9]{1,}$", full.names = TRUE)
 

@@ -187,8 +187,35 @@ gen_data_groupby = function(nfiles = 10L, ngroups = 8L
 }
 
 
-data_local_group_assign = function(P)
+#' Greedy scheduling to assign groups in a GROUP BY to workers
+#'
+#' This doesn't account for data locality.
+#' It's useful as a benchmark.
+#'
+#' @param P matrix with rows representing distributions of the groups over files. Rows are files, columns are groups.
+#' @param nworkers
+#' @export
+greedy_group_assign = function(P, nworkers)
 {
+    P1 = rowSums(P)
+    P2 = colSums(P)
 
-    list(file = , group = )
+    g1 = greedy_assign(P1, nworkers)
+    g2 = greedy_assign(P2, nworkers)
+
+    list(file = g1, group = g2)
+}
+
+
+#' Data location aware scheduling to assign groups in a GROUP BY to workers
+#'
+#' @param P matrix with rows representing distributions of the groups over files. Rows are files, columns are groups.
+#' @param nworkers
+#' @export
+data_local_group_assign = function(P, w)
+{
+    g1 = first_group(P, w)
+    g2 = second_group(g1, P, w)
+
+    list(file = g1, group = g2)
 }
