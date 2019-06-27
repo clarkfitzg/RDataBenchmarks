@@ -33,6 +33,8 @@ group_by_local_shuffle = function(dir, nworkers = 3L
         cls = makeCluster(nworkers)
 
         clusterExport(cls, c("files_to_read", "group_by_levels", "group_worker_assignment", "group_fun"))
+
+        # Use workerID globally all over the place in the code that follows
         parLapply(cls, seq(nworkers), function(i) assign("workerID", i, globalenv()))
 
         clusterEvalQ(cls, {
@@ -44,10 +46,16 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 
 ############################################################
     initial_load_time = system.time({
-        clusterEvalQ(cls, {
+
+        load_and_combine = function(files_to_read){
             chunks = lapply(files_to_read, readRDS)
-            d = data.table::rbindlist(chunks)
-            rm(chunks)
+            data.table::rbindlist(chunks)
+        }
+
+        clusterExport(cls, "load_and_combine")
+
+        clusterEvalQ(cls, {
+            d = load_and_combine(files_to_read)
         })
     })
 
@@ -56,26 +64,59 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 
         dir_intermediate = file.path(dir, "intermediate")
         mkdir(dir_intermediate)
-        clusterExport(cls, "dir_intermediate")
+
+        save_intermediate = function(grp){
+            fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
+            # TODO: experiment with high performance intermediate data format, for example fst
+            saveRDS(grp, fname)
+        }
+
+        clusterExport(cls, c("dir_intermediate", "save_intermediate"))
 
         clusterEvalQ(cls, {
-            save_intermediate = function(grp){
-                fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
-                # TODO: experiment with high performance intermediate data format, for example fst
-                saveRDS(grp, fname)
-            }
             # data.table syntax:
             d[!(g %in% groups_to_compute), save_intermediate(.SD), by = g]
+
+            # Drop everything that we no longer need.
+            d = d[g %in% groups_to_compute, ]
         })
 
     })
 
 ############################################################
     intermediate_load_time = system.time({
+
+        intermediate_files = list.files(dir_intermediate)
+
+        intfile_groups = gsub("(group|_worker.*)", "", intermediate_files)
+        #intfile_groups = as.integer(intfile_groups)
+
+        clusterExport(cls, c("intermediate_files", "intfile_groups"))
+
+        clusterEvalQ(cls, {
+            int_files_to_read = intermediate_files[intfile_groups %in% groups_to_compute]
+
+            d_from_others = load_and_combine(int_files_to_read)
+            d = rbind(d, d_from_others)
+        })
+
     })
 
 ############################################################
     compute_time = system.time({
+
+        dir_result = file.path(dir, "result")
+        mkdir(dir_result)
+
+        clusterExport(cls, "dir_result")
+
+        clusterEvalQ(cls, {
+            result = d[, group_fun(col1), by = g]
+            saveRDS(result, file.path(dir_result, workerID))
+        })
+
+        results = load_and_combine(dir_result)
+
     })
 
 
@@ -84,6 +125,6 @@ group_by_local_shuffle = function(dir, nworkers = 3L
          , intermediate_save_time = intermediate_save_time
          , intermediate_load_time = intermediate_load_time
          , compute_time = compute_time
+         , results = results
          )
 }
-
