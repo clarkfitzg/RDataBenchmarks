@@ -53,7 +53,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 
 
 ############################################################
-    tm = record_time("initial_load_time", tm)
+    tm = record_time("initial_load", tm)
 ############################################################
 
     load_and_combine = function(files_to_read){
@@ -71,7 +71,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 
 
 ############################################################
-    tm = record_time("intermediate_save_time", tm)
+    tm = record_time("intermediate_save", tm)
 ############################################################
 
     dir_intermediate = file.path(dir, "intermediate")
@@ -97,7 +97,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 
 
 ############################################################
-    tm = record_time("intermediate_load_time", tm)
+    tm = record_time("intermediate_load", tm)
 ############################################################
 
     intermediate_files = list.files(dir_intermediate, full.names = TRUE)
@@ -117,7 +117,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 
 
 ############################################################
-    tm = record_time("compute_time", tm)
+    tm = record_time("compute_result", tm)
 ############################################################
 
     dir_result = file.path(dir, "result")
@@ -131,7 +131,11 @@ group_by_local_shuffle = function(dir, nworkers = 3L
         saveRDS(result, file.path(dir_result, workerID))
     })
 
-    results = load_and_combine(dir_result)
+    results = load_and_combine(list.files(dir_result, full.names = TRUE))
 
-    stop_time(tm)
+    tm = stop_time(tm)
+
+    stopCluster(cls)
+
+    list(results = results, time = tm)
 }
