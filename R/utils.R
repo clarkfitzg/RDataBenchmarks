@@ -35,7 +35,7 @@ clusterEvalStay = function(cl, expr)
     b = rstatic::to_ast(expr)
     stopifnot(is(b, "Brace"))
 
-    b$contents = c(b$contents, list(quote_ast(NULL)))
+    b$contents = c(b$contents, list(rstatic::quote_ast(NULL)))
 
     expr = rstatic::as_language(b)
 

@@ -64,6 +64,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     clusterExport(cls, "load_and_combine"
                   , envir = environment())
 
+    # d is the name of the large data set on all the workers.
     clusterEvalStay(cls, {
         d = load_and_combine(files_to_read)
     })
@@ -77,13 +78,21 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     dir.create(dir_intermediate)
 
     save_intermediate = function(grp){
-        fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
-        # TODO: experiment with high performance intermediate data format, for example fst
-        saveRDS(grp, fname)
+        if(0 < nrow(grp)){
+            fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
+            # TODO: experiment with high performance intermediate data format, for example fst
+            saveRDS(grp, fname)
+        }
     }
 
     clusterExport(cls, c("dir_intermediate", "save_intermediate")
                   , envir = environment())
+
+    clusterEvalQ(cls, {
+        #d[!(g %in% groups_to_compute), head(.SD, 3L), by = g]
+                     d$g[1]
+                  })
+
 
     clusterEvalStay(cls, {
         # data.table syntax:
