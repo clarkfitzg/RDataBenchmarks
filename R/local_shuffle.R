@@ -2,7 +2,11 @@
 #'
 #' Internally this uses data.table, because it's fast and we want the speed.
 #'
+#' @rdname group_by
 #' @param dir directory where data can be found
+#' @param nworkers number of workers
+#' @param assign_groups function to assign files and groups to workers, signature must match default
+#' @param group_fun function to apply to each group
 group_by_local_shuffle = function(dir, nworkers = 3L
     , assign_groups = data_local_group_assign, group_fun = median
 ){
