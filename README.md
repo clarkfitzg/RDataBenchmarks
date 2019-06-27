@@ -87,10 +87,40 @@ gen_data_groupby(p = 1
 )
 ```
 
-Evaluate the performance:
+Evaluate the performance.
+
+Data local algorithm:
 ```{r}
 
-group_by_local_shuffle(dir = "~/data/RDataBenchmarks/groupby_10files_8groups", nworkers = 3L)
+out = group_by_local_shuffle(dir = "~/data/RDataBenchmarks/groupby_10files_8groups", nworkers = 3L)
+
+$time
+$time$scheduling
+Time difference of 0.004473925 secs
+
+$time$setup_cluster
+Time difference of 0.7160969 secs
+
+$time$initial_load
+Time difference of 2.552251 secs
+
+$time$intermediate_save
+Time difference of 9.078969 secs
+
+$time$intermediate_load
+Time difference of 0.09745407 secs
+
+$time$compute_result
+Time difference of 0.654726 secs
+```
+
+Greedy algorithm:
+
+```{r}
+
+out2 = group_by_local_shuffle(dir = "~/data/RDataBenchmarks/groupby_10files_8groups", nworkers = 3L, assign_groups = greedy_group_assign)
+
+out2$time
 
 ```
 

@@ -80,7 +80,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
     save_intermediate = function(grp){
         fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
         # TODO: experiment with high performance intermediate data format, for example fst
-        saveRDS(grp, fname)
+        saveRDS(grp, fname, compress = FALSE)
     }
 
     clusterExport(cls, c("dir_intermediate", "save_intermediate")
