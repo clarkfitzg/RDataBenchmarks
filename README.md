@@ -70,10 +70,9 @@ So we do need to measure every step for each case.
 It's not a bad thing that the steps all depend on each other.
 Indeed, it shows that for this particular code pattern we might take a completely different choice in how to compute a result depending on the characteristics of the data and the platform.
 
+
 Generate some data:
-
 ```{r}
-
 gen_data_groupby(p = 1
     , MB = 50
     , writer = saveRDS
@@ -81,7 +80,12 @@ gen_data_groupby(p = 1
     , ngroups = 8L
     , block_two = TRUE
 )
+```
 
+Evaluate the performance:
+```{r}
+
+group_by_local_shuffle(dir = "~/data/RDataBenchmarks/groupby_10files_8groups", nworkers = 3L)
 
 ```
 

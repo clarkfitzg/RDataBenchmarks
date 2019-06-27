@@ -10,7 +10,7 @@ Maintainer: Clark Fitzgerald <clarkfitzg@gmail.com>
 Depends:
     R (>= 3.1.0)
 Imports:
-    utils
+    parallel
 Suggests: 
     data.table,
     roxygen2,
