@@ -181,3 +181,21 @@ The greedy algorithm also does about 10% better for computing the final result.
 I expected this last item, because the load balancing should be a bit better.
 
 For total time the greedy algorithm seems to do on the order of 1% better, but there's a lot of variability here.
+
+### Questions
+
+The intermediate save takes around 4 seconds and the intermediate load a little under 0.1 seconds.
+That's 40 times slower.
+Why?
+Is that to be expected?
+
+The intermediate load is much faster without compressing the data.
+Part of this may come from generating random data without any structure at all.
+In contrast, real data often has repeated values or lower precision that could help compression.
+
+
+### Summary
+
+The real bottlenecks in this distributed GROUP BY come from loading and saving the data.
+We load and save the data on disk as a mechanism for workers on a shared file system to communicate.
+Any differences that came from scheduling and our particular algorithm for considering data locality were small relative to the real bottlenecks.
