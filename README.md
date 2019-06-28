@@ -193,6 +193,13 @@ The intermediate load is much faster without compressing the data.
 Part of this may come from generating random data without any structure at all.
 In contrast, real data often has repeated values or lower precision that could help compression.
 
+One issue with the way I've implemented it is that the program will wait until all workers have finished each step before proceeding to the next step.
+This allows us to time each step, and determine which is most expensive.
+The downside is that the slowest worker is the bottleneck for that step.
+This means that if one worker has twice as much work as all the others, then that one worker will hold up the whole step.
+It doesn't matter if the total data transferred was small.
+In other words, it's necessary to minimize the maximum time every worker spends in each step.
+
 
 ### Summary
 
