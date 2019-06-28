@@ -119,8 +119,65 @@ Greedy algorithm:
 ```{r}
 
 out2 = group_by_local_shuffle(dir = "~/data/RDataBenchmarks/groupby_10files_8groups", nworkers = 3L, assign_groups = greedy_group_assign)
-
 out2$time
 
 ```
 
+Let's try it a few times to get a better idea of performance.
+
+```{r}
+
+wrapper = function(i, ...){
+    out = group_by_local_shuffle(...)
+    out = lapply(out[["time"]], as.numeric)
+    out = data.frame(out)
+    out$total = rowSums(out)
+    out
+}
+
+summarize_shuffle = function(nreps = 5, ...)
+{
+    results = lapply(seq(nreps), wrapper, ...)
+    do.call(rbind, results)
+}
+
+out_greedy = summarize_shuffle(dir = "~/data/RDataBenchmarks/groupby_10files_8groups"
+    , nworkers = 3L
+    , assign_groups = greedy_group_assign
+)
+out_greedy$scheduler = "greedy"
+
+
+out_data_local = summarize_shuffle(dir = "~/data/RDataBenchmarks/groupby_10files_8groups"
+    , nworkers = 3L
+    , assign_groups = data_local_group_assign
+)
+out_data_local$scheduler = "data_local"
+
+out = rbind(out_greedy, out_data_local)
+
+```
+
+So which is faster?
+Scheduling takes on the order of 1ms for the data local version, vs. 0.1 ms for the simpler greedy algorithm.
+Setting up the cluster and the initial loadings are about the same.
+For the intermediate save and intermediate load I hoped to see some improvements for the data local algorithm.
+
+```{r}
+
+stripchart(intermediate_save ~ scheduler, data = out)
+
+stripchart(intermediate_load ~ scheduler, data = out)
+
+stripchart(compute_result ~ scheduler, data = out)
+
+stripchart(total ~ scheduler, data = out)
+
+```
+
+Well, it's just the opposite.
+The greedy algorithm does about 20% better for the intermediate load.
+The greedy algorithm also does about 10% better for computing the final result.
+I expected this last item, because the load balancing should be a bit better.
+
+For total time the greedy algorithm seems to do on the order of 1% better, but there's a lot of variability here.

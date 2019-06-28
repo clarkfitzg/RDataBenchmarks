@@ -75,7 +75,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 ############################################################
 
     dir_intermediate = file.path(dir, "intermediate")
-    dir.create(dir_intermediate)
+    dir.create(dir_intermediate, showWarnings = FALSE)
 
     save_intermediate = function(grp){
         fname = file.path(dir_intermediate, sprintf("group%i_worker%i", grp$g[1], workerID))
@@ -121,7 +121,7 @@ group_by_local_shuffle = function(dir, nworkers = 3L
 ############################################################
 
     dir_result = file.path(dir, "result")
-    dir.create(dir_result)
+    dir.create(dir_result, showWarnings = FALSE)
 
     clusterExport(cls, "dir_result"
                   , envir = environment())
